@@ -246,16 +246,16 @@ dep 'prefs' do
   }
 end
 
-dep 'system name set', :name do
-  name.default! 'Cort'
+dep 'system name set', :hostname do
+  hostname.default! 'Cort'
 
-  met? { shell('hostname -s') == name }
+  met? { shell('hostname -s') == hostname }
   meet {
-    sudo *%w[scutil --set ComputerName], name
-    sudo *%w[scutil --set HostName], name
-    sudo *%w[scutil --set LocalHostName], name
+    sudo *%w[scutil --set ComputerName], hostname
+    sudo *%w[scutil --set HostName], hostname
+    sudo *%w[scutil --set LocalHostName], hostname
     sudo *%w[defaults write
       /Library/Preferences/SystemConfiguration/com.apple.smb.server
-       NetBIOSName -string], name
+       NetBIOSName -string], hostname
   }
 end
