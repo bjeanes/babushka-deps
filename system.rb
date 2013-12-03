@@ -62,7 +62,7 @@ dep 'prefs' do
     shell %w[defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false]
 
     # Automatically quit printer app once the print jobs complete
-    shell %w[defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true]
+    shell %w[defaults write com.apple.print.PrintingPrefs Quit\ When\ Finished -bool true]
 
     # Disable the “Are you sure you want to open this application?” dialog
     shell %w[defaults write com.apple.LaunchServices LSQuarantine -bool false]
@@ -215,8 +215,7 @@ dep 'prefs' do
     shell %w[defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true]
 
     # Disable local Time Machine backups
-    shell %w[hash tmutil &> /dev/null]
-    sudo %w[tmutil disablelocal]
+    shell 'bash', '-c',  'hash tmutil &> /dev/null && sudo tmutil disablelocal'
 
     # Use plain text mode for new TextEdit documents
     shell %w[defaults write com.apple.TextEdit RichText -int 0]
