@@ -30,9 +30,15 @@ dep 'set up personal deps' do
   meet { shell 'ln', '-s', File.dirname(__FILE__), personal.to_s }
 end
 
+dep 'prefs' do
+  requires {
+    on :osx, 'osx prefs'
+  }
+end
+
 # A lot of these borrowed from
 # https://github.com/mathiasbynens/dotfiles/blob/master/.osx
-dep 'prefs' do
+dep 'osx prefs' do
   met? { false }
   meet {
     met? { true }
@@ -249,13 +255,15 @@ end
 dep 'system name set', :hostname do
   hostname.default! 'Cort'
 
-  met? { shell('hostname -s') == hostname }
-  meet {
-    sudo *%w[scutil --set ComputerName], hostname
-    sudo *%w[scutil --set HostName], hostname
-    sudo *%w[scutil --set LocalHostName], hostname
-    sudo *%w[defaults write
-      /Library/Preferences/SystemConfiguration/com.apple.smb.server
-       NetBIOSName -string], hostname
-  }
+  on :osx do
+    met? { shell('hostname -s') == hostname }
+    meet {
+      sudo *%w[scutil --set ComputerName], hostname
+      sudo *%w[scutil --set HostName], hostname
+      sudo *%w[scutil --set LocalHostName], hostname
+      sudo *%w[defaults write
+        /Library/Preferences/SystemConfiguration/com.apple.smb.server
+         NetBIOSName -string], hostname
+    }
+  end
 end
