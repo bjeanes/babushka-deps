@@ -1,6 +1,11 @@
 dep 'dot files cloned' do
   met? { '~/.config/.git'.p.exists? }
-  meet { git 'https://github.com/bjeanes/dot-files.git', to: '~/.config' }
+  meet {
+    shell \
+      'git', 'clone', '--recursive',
+      'https://github.com/bjeanes/dot-files.git',
+      '~/.config'.p.expand
+  }
 end
 
 dep 'dot files linked' do
