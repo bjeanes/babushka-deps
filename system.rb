@@ -1,5 +1,6 @@
 dep 'system' do
   requires \
+    'system name set',
     'ssh key',
     'set up personal deps',
     'dot files',
@@ -9,6 +10,8 @@ dep 'system' do
 end
 
 dep 'ssh key', :key do
+  requires 'system name set'
+
   key.default! '~/.ssh/id_rsa'.p.expand
 
   met? { key.p.exists? }
@@ -241,5 +244,19 @@ dep 'prefs' do
     # FIXME: make sure Chrome is installed first
     shell %w[defaults write com.google.Chrome ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"]
     shell %w[defaults write com.google.Chrome.canary ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"]
+  }
+end
+
+dep 'system name set', :name do
+  name.default! 'Cort'
+
+  met? { shell('hostname -s') == name }
+  meet {
+    sudo *%w[scutil --set ComputerName], name
+    sudo *%w[scutil --set HostName], name
+    sudo *%w[scutil --set LocalHostName], name
+    sudo *%w[defaults write
+      /Library/Preferences/SystemConfiguration/com.apple.smb.server
+       NetBIOSName -string], name
   }
 end
