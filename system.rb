@@ -46,12 +46,10 @@ end
 
 # A lot of these borrowed from
 # https://github.com/mathiasbynens/dotfiles/blob/master/.osx
-dep 'osx prefs' do
+dep 'osx prefs', template: 'task' do
   requires 'set caps lock to control'
-  met? { false }
-  meet {
-    met? { true }
 
+  run {
     # Set expanded save dialogs as default
     shell %w[defaults write -g NSNavPanelExpandedStateForSaveMode -bool YES]
 
