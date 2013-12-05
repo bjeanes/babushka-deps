@@ -31,6 +31,8 @@ dep 'set up personal deps' do
 end
 
 dep 'prefs' do
+  requires 'set caps lock to control'
+
   requires {
     on :osx, 'osx prefs'
   }
@@ -47,8 +49,6 @@ end
 # A lot of these borrowed from
 # https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 dep 'osx prefs', template: 'task' do
-  requires 'set caps lock to control'
-
   run {
     # Set expanded save dialogs as default
     shell %w[defaults write -g NSNavPanelExpandedStateForSaveMode -bool YES]
