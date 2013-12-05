@@ -36,9 +36,18 @@ dep 'prefs' do
   }
 end
 
+dep 'set caps lock to control', template: 'task' do
+  on :osx do
+    run {
+      shell 'osascript', File.expand_path('../lib/set_caps_to_ctrl.applescript', __FILE__)
+    }
+  end
+end
+
 # A lot of these borrowed from
 # https://github.com/mathiasbynens/dotfiles/blob/master/.osx
 dep 'osx prefs' do
+  requires 'set caps lock to control'
   met? { false }
   meet {
     met? { true }
