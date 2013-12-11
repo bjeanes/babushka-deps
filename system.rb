@@ -298,7 +298,7 @@ dep 'osx prefs', template: 'task' do
   after {
     apps = %w[Finder Dock SystemUIServer Safari]
     apps.each do |app|
-      shell 'killall', '-HUP', app
+      shell 'killall', '-HUP', app if shell 'pgrep', app
     end
   }
 end
