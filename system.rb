@@ -71,9 +71,21 @@ dep 'set caps lock to control', template: 'task' do
   end
 end
 
+dep 'osx secrets prefpane' do
+  met? { '~/Library/PreferencePanes/Secrets.prefPane'.p.exists? }
+  meet {
+    Babushka::Resource.extract('http://blacktree-secrets.googlecode.com/files/Secrets_1.0.6.zip') do
+      shell 'mv Secrets.prefPane ~/Library/PreferencePanes/'
+    end
+  }
+end
+
 # A lot of these borrowed from
 # https://github.com/mathiasbynens/dotfiles/blob/master/.osx
+# http://secrets.blacktree.com.
 dep 'osx prefs', template: 'task' do
+  requires 'osx secrets prefpane'
+
   run {
     # Set expanded save dialogs as default
     shell %w[defaults write -g NSNavPanelExpandedStateForSaveMode -bool YES]
@@ -85,13 +97,18 @@ dep 'osx prefs', template: 'task' do
     shell %w[defaults write com.apple.dashboard mcx-disabled -bool YES]
 
     # Disable the sound effects on boot
-    sudo %w[nvram SystemAudioVolume="\ "]
+    # FIXME: apparently this gets reset after every reboot anyway AND the value
+    #        differs from mac-to-mac...
+    sudo %w[nvram SystemAudioVolume=%80]
 
     # Disable opening and closing window animations
     shell %w[defaults write NSGlobalDomain NSAutomaticWindowAnimationsEnabled -bool false]
 
     # Increase window resize speed for Cocoa applications
     shell %w[defaults write NSGlobalDomain NSWindowResizeTime -float 0.001]
+
+    # quick look animation duration
+    shell %w[defaults write -g QLPanelAnimationDuration -float 0]
 
     # Expand print panel by default
     shell %w[defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true]
@@ -118,6 +135,9 @@ dep 'osx prefs', template: 'task' do
     # Reveal IP address, hostname, OS version, etc. when clicking the clock
     # in the login window
     sudo %w[defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName]
+
+    # Disable restoring windows when logging out and back in
+    sudo %w[defaults write com.apple.loginwindow LoginwindowLaunchesRelaunchApps -bool false]
 
     # Restart automatically if the computer freezes
     shell %w[systemsetup -setrestartfreeze on]
@@ -229,6 +249,11 @@ dep 'osx prefs', template: 'task' do
     shell %w[defaults write com.apple.dock autohide-delay -float 0]
     # Remove the animation when hiding/showing the Dock
     shell %w[defaults write com.apple.dock autohide-time-modifier -float 0]
+
+    # TODO: turn off or speed up minimization effect ("genie" / "zoom")
+
+    # Expose animation delay
+    shell %w[defaults write com.apple.dock expose-animation-duration -float 0]
 
     # Enable Safari’s debug menu
     shell %w[defaults write com.apple.Safari IncludeInternalDebugMenu -bool true]
