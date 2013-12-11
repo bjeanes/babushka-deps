@@ -11,11 +11,12 @@ dep 'system' do
     'disk encryption'
 end
 
-dep 'disk encryption' do
-  # FIXME: Mountain Lion (and higher?) only
-  on :osx do
-    met? { shell 'fdesetup isactive' }
-    meet {
+# FIXME: Mountain Lion (and higher?) only
+dep 'filevault' do
+  met = false
+  met? { met || shell('fdesetup isactive') }
+  meet do
+    met = log_block "Setting up FileVault 2" do
       # Enable FileVault 2 at next reboot (password will be prompted at shutdown)
       # http://derflounder.wordpress.com/2013/10/22/managing-mavericks-filevault-2-with-fdesetup/
       sudo 'fdesetup', 'enable', '-defer', '~/filevault-recovery-info.plist'
@@ -23,16 +24,25 @@ dep 'disk encryption' do
       # The normal met? block will only pass after a reboot but doesn't require sudo
       # When meeting, we need sudo anyway, so we can do a more detailed check to see
       # if FileVault *will* be enabled at next reboot.
-      if sudo('fdesetup status') =~ /Deferred enablement appears to be active/m
-        met? { true }
+      sudo('fdesetup status') =~ /Deferred enablement appears to be active/m
+    end
 
-        # TODO: see if babushka has a "after all deps have run but only if this dep need to be met"
-        # to trigger a restart of the machine.
-        at_exit { sudo 'shutdown -r now' }
-      end
-    }
-
+    if met
+      log "Enqueuing reboot for when Babushka has finished"
+      # If we have just successfully set up a deferred enablement, we should restart when
+      # we are done babushka-ing the system.
+      # NOTE: `sudo rebeoot` or `sudo shutdown -r now` does not seem to trigger the
+      #       FileVault 2 enablement prompt. This is the only way I know how to get
+      #       it to work
+      at_exit { shell 'osascript', '-e', 'tell app "System Events" to restart' }
+    end
   end
+end
+
+dep 'disk encryption' do
+  requires {
+    on :osx, 'filevault'
+  }
 end
 
 dep 'ssh key', :key do
