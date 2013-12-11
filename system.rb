@@ -19,7 +19,7 @@ dep 'filevault' do
     met = log_block "Setting up FileVault 2" do
       # Enable FileVault 2 at next reboot (password will be prompted at shutdown)
       # http://derflounder.wordpress.com/2013/10/22/managing-mavericks-filevault-2-with-fdesetup/
-      sudo 'fdesetup', 'enable', '-defer', '~/filevault-recovery-info.plist'
+      sudo 'fdesetup', 'enable', '-defer', '~/filevault-recovery-info.plist'.p.path
 
       # The normal met? block will only pass after a reboot but doesn't require sudo
       # When meeting, we need sudo anyway, so we can do a more detailed check to see
