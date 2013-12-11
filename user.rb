@@ -1,3 +1,13 @@
+# FIXME: this shouldn't be a task since we can check
+dep 'shell', template: 'task' do
+  requires dep('zsh.bin')
+
+  run {
+    log 'TODO'
+  }
+end
+
+
 dep 'dot files cloned' do
   met? { '~/.config/.git'.p.exists? }
   meet {
@@ -21,4 +31,15 @@ end
 
 dep 'dot files' do
   requires 'dot files cloned', 'dot files linked'
+end
+
+dep 'user bins' do
+  requires 'user bin dir'
+
+  # TODO
+  # * selecta
+end
+
+dep 'user bin dir', template: 'task' do
+  run { '~/bin'.p.mkdir }
 end

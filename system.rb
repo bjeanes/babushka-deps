@@ -6,7 +6,33 @@ dep 'system' do
     'dot files',
     'packages',
     'rubies',
-    'prefs'
+    'apps',
+    'prefs',
+    'disk encryption'
+end
+
+dep 'disk encryption' do
+  # FIXME: Mountain Lion (and higher?) only
+  on :osx do
+    met? { shell 'fdesetup isactive' }
+    meet {
+      # Enable FileVault 2 at next reboot (password will be prompted at shutdown)
+      # http://derflounder.wordpress.com/2013/10/22/managing-mavericks-filevault-2-with-fdesetup/
+      sudo 'fdesetup', 'enable', '-defer', '~/filevault-recovery-info.plist'
+
+      # The normal met? block will only pass after a reboot but doesn't require sudo
+      # When meeting, we need sudo anyway, so we can do a more detailed check to see
+      # if FileVault *will* be enabled at next reboot.
+      if sudo('fdesetup status') =~ /Deferred enablement appears to be active/m
+        met? { true }
+
+        # TODO: see if babushka has a "after all deps have run but only if this dep need to be met"
+        # to trigger a restart of the machine.
+        at_exit { sudo 'shutdown -r now' }
+      end
+    }
+
+  end
 end
 
 dep 'ssh key', :key do
@@ -232,6 +258,7 @@ dep 'osx prefs', template: 'task' do
 
     # Use plain text mode for new TextEdit documents
     shell %w[defaults write com.apple.TextEdit RichText -int 0]
+
     # Open and save files as UTF-8 in TextEdit
     shell %w[defaults write com.apple.TextEdit PlainTextEncoding -int 4]
     shell %w[defaults write com.apple.TextEdit PlainTextEncodingForWrite -int 4]
@@ -256,6 +283,13 @@ dep 'osx prefs', template: 'task' do
     # FIXME: make sure Chrome is installed first
     shell %w[defaults write com.google.Chrome ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"]
     shell %w[defaults write com.google.Chrome.canary ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"]
+  }
+
+  after {
+    apps = %w[Finder Dock SystemUIServer Safari]
+    apps.each do |app|
+      shell 'killall', '-HUP', app
+    end
   }
 end
 

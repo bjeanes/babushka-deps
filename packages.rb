@@ -24,11 +24,12 @@ dep 'lein.bin' do
 end
 
 dep 'imagemagick', template: 'bin' do
-  provides %w[identify mogrify convert] 
+  provides %w[identify mogrify convert]
 end
 
 dep 'packages' do
   requires(
+    dep('emacs.bin'),
     dep('tmux.bin'),
     dep('tree.bin'),
     dep('watch.bin'),
@@ -50,8 +51,4 @@ dep 'packages' do
     'redis',
     'haskell'
   )
-
-  requires {
-    on :osx, dep('reattach-to-user-namespace.bin')
-  }
 end
