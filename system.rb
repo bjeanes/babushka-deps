@@ -12,27 +12,19 @@ dep 'system' do
 end
 
 dep 'filevault' do
-  met = false
-  met? { met || shell('fdesetup isactive') }
+  def encrypted?; shell('fdesetup isactive'); end
+  def deferred?;  sudo('fdesetup status') =~ /Deferred enablement appears to be active/m; end
+
+  met? {
+    encrypted? || if deferred?
+      unmeetable! "Reboot to enable FileVault then re-run babushak to continue."
+    end
+  }
+
   meet do
-    met = log_block "Setting up FileVault 2" do
-      # Enable FileVault 2 at next reboot (password will be prompted at shutdown)
-      # http://derflounder.wordpress.com/2013/10/22/managing-mavericks-filevault-2-with-fdesetup/
-      sudo 'fdesetup', 'enable', '-defer', '~/filevault-recovery-info.plist'.p.path
-
-      # The normal met? block will only pass after a reboot but doesn't require sudo
-      # When meeting, we need sudo anyway, so we can do a more detailed check to see
-      # if FileVault *will* be enabled at next reboot.
-      sudo('fdesetup status') =~ /Deferred enablement appears to be active/m
-    end
-
-    if met
-      log "Enqueuing reboot for when Babushka has finished"
-      # NOTE: `sudo rebeoot` or `sudo shutdown -r now` does not seem to trigger the
-      #       FileVault 2 enablement prompt. This is the only way I know how to get
-      #       it to work
-      at_exit { shell 'osascript', '-e', 'tell app "System Events" to restart' }
-    end
+    # Enable FileVault 2 at next reboot (password will be prompted at shutdown)
+    # http://derflounder.wordpress.com/2013/10/22/managing-mavericks-filevault-2-with-fdesetup/
+    sudo 'fdesetup', 'enable', '-defer', '~/filevault-recovery-info.plist'.p.path
   end
 end
 
