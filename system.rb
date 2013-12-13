@@ -17,7 +17,7 @@ dep 'filevault' do
 
   met? {
     encrypted? || if deferred?
-      unmeetable! "Reboot to enable FileVault then re-run babushak to continue."
+      unmeetable! "Reboot to enable FileVault then re-run babushka to continue."
     end
   }
 
