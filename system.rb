@@ -11,7 +11,6 @@ dep 'system' do
     'disk encryption'
 end
 
-# FIXME: Mountain Lion (and higher?) only
 dep 'filevault' do
   met = false
   met? { met || shell('fdesetup isactive') }
@@ -29,8 +28,6 @@ dep 'filevault' do
 
     if met
       log "Enqueuing reboot for when Babushka has finished"
-      # If we have just successfully set up a deferred enablement, we should restart when
-      # we are done babushka-ing the system.
       # NOTE: `sudo rebeoot` or `sudo shutdown -r now` does not seem to trigger the
       #       FileVault 2 enablement prompt. This is the only way I know how to get
       #       it to work
