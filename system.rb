@@ -307,6 +307,7 @@ dep 'osx prefs', template: 'task' do
     # FIXME: make sure Chrome is installed first
     shell %w[defaults write com.google.Chrome ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"]
     shell %w[defaults write com.google.Chrome.canary ExtensionInstallSources -array "https://*.github.com/*" "http://userscripts.org/*"]
+    shell %w[defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool FALSE]
   }
 
   after {
