@@ -10,6 +10,7 @@ dep 'osx apps' do
     Alfred.app Dropbox.app MacVim.app 1Password.app
     Google\ Chrome.app adium Skype.app iTerm.app
     iStat\ Menus.app Bartender.app HipChat.app
+    fseventer.app
   ]
 end
 
@@ -50,6 +51,10 @@ end
 
 dep 'HipChat.app' do
   source 'https://www.hipchat.com/downloads/latest/mac'
+end
+
+dep 'fseventer.app' do
+  sparkle 'http://fernlightning.com/appcasts/fseventer.xml'
 end
 
 dep 'Bartender.app' do
